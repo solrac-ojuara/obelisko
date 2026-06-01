@@ -1,0 +1,117 @@
+<div
+  id="modal-backdrop"
+  (click)="onBackdropClick($event)"
+  style="position:fixed; inset:0; z-index:100; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,0.45); backdrop-filter:blur(2px)"
+>
+  <div style="background:#fff; border-radius:14px; box-shadow:0 20px 60px rgba(0,0,0,0.18); width:100%; max-width:480px; margin:1rem; overflow:hidden">
+
+    <!-- Cabeçalho -->
+    <div style="padding:1.25rem 1.75rem; border-bottom:1px solid #f3f4f6; display:flex; align-items:center; justify-content:space-between">
+      <div>
+        <h3 style="font-size:1rem; font-weight:700; color:#001F3F; margin:0">Adicionar Compra</h3>
+        <p style="font-size:0.78rem; color:#9ca3af; margin:2px 0 0">
+          {{ step === 'input' ? 'Informe a chave de acesso do DANFE' : 'Confirme os produtos encontrados' }}
+        </p>
+      </div>
+      <button (click)="onCancelar()"
+        style="width:30px; height:30px; border-radius:7px; border:1px solid #e5e7eb; background:#f9fafb; color:#6b7280; cursor:pointer; display:flex; align-items:center; justify-content:center"
+        onmouseover="this.style.background='#fee2e2'; this.style.color='#dc2626'" onmouseout="this.style.background='#f9fafb'; this.style.color='#6b7280'">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- PASSO 1: input -->
+    <div *ngIf="step === 'input'" style="padding:1.5rem 1.75rem">
+      <div style="margin-bottom:1rem">
+        <label style="display:block; font-size:0.78rem; font-weight:600; color:#374151; margin-bottom:5px">CNPJ da empresa</label>
+        <input type="text" [(ngModel)]="cnpjInput" maxlength="18"
+          placeholder="Ex: 42.604.816/0480-30"
+          style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:0.875rem; outline:none"
+          onfocus="this.style.borderColor='#FFD700'; this.style.boxShadow='0 0 0 3px rgba(255,215,0,0.15)'"
+          onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'" />
+      </div>
+
+      <div style="margin-bottom:1rem">
+        <label style="display:block; font-size:0.78rem; font-weight:600; color:#374151; margin-bottom:5px">Chave de Acesso (44 dígitos)</label>
+        <input type="text" [(ngModel)]="chaveNfe" maxlength="44"
+          placeholder="Ex: 35250112345678000195550010000001231000012345"
+          style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:0.8rem; font-family:monospace; outline:none"
+          onfocus="this.style.borderColor='#FFD700'; this.style.boxShadow='0 0 0 3px rgba(255,215,0,0.15)'"
+          onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'" />
+        <p style="font-size:0.7rem; color:#9ca3af; margin:4px 0 0">{{ chaveNfe.length }}/44 dígitos</p>
+      </div>
+
+      <div>
+        <label style="display:block; font-size:0.78rem; font-weight:600; color:#374151; margin-bottom:5px">Senha do Certificado</label>
+        <input type="password" [(ngModel)]="certPassword"
+          placeholder="Senha do arquivo .pfx"
+          style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:0.875rem; outline:none"
+          onfocus="this.style.borderColor='#FFD700'; this.style.boxShadow='0 0 0 3px rgba(255,215,0,0.15)'"
+          onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'" />
+      </div>
+
+      <div *ngIf="error" style="margin-top:10px; font-size:0.78rem; color:#dc2626; background:#fff5f5; border:1px solid #fecaca; border-radius:6px; padding:8px 10px">
+        {{ error }}
+      </div>
+    </div>
+
+    <!-- PASSO 2: preview -->
+    <div *ngIf="step === 'preview' && nfeData" style="padding:1.25rem 1.75rem">
+      <div style="margin-bottom:1rem; padding:10px 12px; background:#f9fafb; border-radius:8px; border:1px solid #e5e7eb">
+        <p style="font-size:0.75rem; color:#6b7280; margin:0">Emitente: <strong style="color:#111827">{{ nfeData.emitente }}</strong></p>
+        <p style="font-size:0.75rem; color:#6b7280; margin:4px 0 0">{{ nfeData.produtos.length }} produto(s) encontrado(s)</p>
+      </div>
+
+      <div style="max-height:220px; overflow-y:auto">
+        <table style="width:100%; border-collapse:collapse; font-size:0.78rem">
+          <thead>
+            <tr style="border-bottom:2px solid #e5e7eb">
+              <th style="text-align:left; padding:6px 4px; color:#6b7280; font-weight:600">Produto</th>
+              <th style="text-align:right; padding:6px 4px; color:#6b7280; font-weight:600">Qtd</th>
+              <th style="text-align:right; padding:6px 4px; color:#6b7280; font-weight:600">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let p of nfeData.produtos" style="border-bottom:1px solid #f3f4f6">
+              <td style="padding:7px 4px; color:#111827">{{ p.xProd }}</td>
+              <td style="padding:7px 4px; text-align:right; color:#374151">{{ p.quantidade }}</td>
+              <td style="padding:7px 4px; text-align:right; color:#059669; font-weight:600">R$ {{ p.valorTotal | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div style="padding:1rem 1.75rem; border-top:1px solid #f3f4f6; display:flex; gap:8px; justify-content:flex-end">
+
+      <button *ngIf="step === 'preview'" (click)="onVoltar()"
+        style="font-size:0.8rem; font-weight:500; padding:8px 16px; border-radius:7px; border:1px solid #e5e7eb; background:#fff; color:#6b7280; cursor:pointer">
+        ← Voltar
+      </button>
+
+      <button (click)="onCancelar()"
+        style="font-size:0.8rem; font-weight:500; padding:8px 16px; border-radius:7px; border:1px solid #e5e7eb; background:#fff; color:#6b7280; cursor:pointer"
+        onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
+        Cancelar
+      </button>
+
+      <button *ngIf="step === 'input'" (click)="onBuscar()" [disabled]="isLoading"
+        style="font-size:0.8rem; font-weight:600; padding:8px 20px; border-radius:7px; border:none; background:linear-gradient(135deg,#FFD700,#F5C400); color:#001F3F; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(245,196,0,0.3)">
+        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        {{ isLoading ? 'Buscando...' : 'Buscar' }}
+      </button>
+
+      <button *ngIf="step === 'preview'" (click)="onImportar()"
+        style="font-size:0.8rem; font-weight:600; padding:8px 20px; border-radius:7px; border:none; background:linear-gradient(135deg,#FFD700,#F5C400); color:#001F3F; cursor:pointer; box-shadow:0 2px 8px rgba(245,196,0,0.3)">
+        Importar Produtos
+      </button>
+
+    </div>
+
+  </div>
+</div>

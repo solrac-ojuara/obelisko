@@ -1,0 +1,84 @@
+<div class="bg-white rounded-lg shadow overflow-hidden">
+  <ng-container *ngIf="isLoading; else tableContent">
+    <div class="p-8 text-center text-gray-600">Carregando produtos...</div>
+  </ng-container>
+
+  <ng-template #tableContent>
+    <ng-container *ngIf="products.length === 0; else showTable">
+      <div class="p-12 text-center">
+        <p class="text-gray-600 text-lg">Nenhum produto encontrado</p>
+      </div>
+    </ng-container>
+
+    <ng-template #showTable>
+      <div class="overflow-x-auto">
+        <table class="w-full">
+          <thead [style]="'background-color: #001F3F; color: white'">
+            <tr>
+              <th
+                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
+                (click)="onSort('sku')"
+              >
+                SKU {{ sortBy === 'sku' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+              </th>
+              <th
+                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
+                (click)="onSort('produto')"
+              >
+                Produto {{ sortBy === 'produto' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+              </th>
+              <th
+                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
+                (click)="onSort('categoria')"
+              >
+                Categoria {{ sortBy === 'categoria' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+              </th>
+              <th
+                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
+                (click)="onSort('quantidade')"
+              >
+                Quantidade {{ sortBy === 'quantidade' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+              </th>
+              <th
+                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
+                (click)="onSort('valor')"
+              >
+                Valor Unitário {{ sortBy === 'valor' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+              </th>
+              <th
+                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
+                (click)="onSort('status')"
+              >
+                Status {{ sortBy === 'status' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products" class="border-b border-gray-200 hover:bg-gray-50">
+              <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ product.sku }}</td>
+              <td class="px-6 py-4 text-sm text-gray-600">{{ product.produto }}</td>
+              <td class="px-6 py-4 text-sm text-gray-600">{{ product.categoria }}</td>
+              <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ product.quantidade }}</td>
+              <td class="px-6 py-4 text-sm text-gray-600">
+                R$ {{ product.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+              </td>
+              <td class="px-6 py-4">
+                <span [ngClass]="getStatusColor(product.status)" class="px-3 py-1 rounded-full text-xs font-semibold">
+                  {{ product.status }}
+                </span>
+              </td>
+            </tr>
+          </tbody>
+          <tfoot [style]="'background-color: #F9FAFB'">
+            <tr class="border-t border-gray-200">
+              <td colspan="4" class="px-6 py-4 text-sm font-semibold">Total:</td>
+              <td class="px-6 py-4 text-sm font-bold" [style]="'color: #001F3F'">
+                R$ {{ getTotalValue().toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+              </td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </ng-template>
+  </ng-template>
+</div>

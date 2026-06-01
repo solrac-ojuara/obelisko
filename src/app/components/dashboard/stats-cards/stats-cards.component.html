@@ -1,0 +1,21 @@
+<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; margin-bottom:2rem">
+  <ng-container *ngIf="!isLoading; else loadingTemplate">
+    <div
+      *ngFor="let card of cards"
+      style="background:#fff; border-radius:10px; padding:1.25rem 1.5rem; border-left:4px solid; box-shadow:0 1px 4px rgba(0,0,0,0.07)"
+      [style.border-color]="card.color"
+    >
+      <div style="font-size:0.75rem; font-weight:600; color:#6b7280; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:6px">{{ card.label }}</div>
+      <div style="font-size:1.75rem; font-weight:800; line-height:1" [style.color]="card.textColor">
+        {{ card.value }}
+      </div>
+    </div>
+  </ng-container>
+
+  <ng-template #loadingTemplate>
+    <div *ngFor="let i of [1,2,3,4]" style="background:#fff; border-radius:10px; padding:1.25rem 1.5rem; box-shadow:0 1px 4px rgba(0,0,0,0.07)">
+      <div style="height:12px; background:#e5e7eb; border-radius:4px; margin-bottom:10px; width:60%"></div>
+      <div style="height:28px; background:#e5e7eb; border-radius:4px; width:40%"></div>
+    </div>
+  </ng-template>
+</div>

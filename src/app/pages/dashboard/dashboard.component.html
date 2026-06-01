@@ -1,0 +1,26 @@
+<div class="min-h-screen bg-gray-50">
+  <app-navigation></app-navigation>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <app-dashboard-header (addPurchase)="onAddPurchase()"></app-dashboard-header>
+
+    <app-stats-cards [data]="stats" [isLoading]="isLoading"></app-stats-cards>
+
+    <app-search-bar [searchTerm]="searchTerm" (searchChange)="onSearchChange($event)"></app-search-bar>
+
+    <app-product-table
+      [products]="filteredProducts"
+      [sortBy]="sortBy"
+      [sortOrder]="sortOrder"
+      [isLoading]="isLoading"
+      (sort)="onSort($event)"
+    ></app-product-table>
+  </main>
+
+  <app-add-purchase-modal
+    *ngIf="isModalOpen"
+    [cnpj]="userCnpj"
+    (importar)="onImportarProdutos($event)"
+    (cancelar)="onCloseModal()"
+  ></app-add-purchase-modal>
+</div>

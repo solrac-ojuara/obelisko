@@ -1,0 +1,11 @@
+<div style="margin-bottom:1.5rem">
+  <input
+    type="text"
+    [value]="searchTerm"
+    (input)="onSearchChange($any($event.target).value)"
+    placeholder="Buscar por SKU, produto ou categoria..."
+    style="width:100%; box-sizing:border-box; padding:10px 16px; border:1px solid #d1d5db; border-radius:8px; font-size:0.875rem; color:#374151; outline:none; transition:border-color 0.15s"
+    onfocus="this.style.borderColor='#FFD700'; this.style.boxShadow='0 0 0 3px rgba(255,215,0,0.15)'"
+    onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'"
+  />
+</div>

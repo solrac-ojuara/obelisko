@@ -1,0 +1,187 @@
+// Product table component styles
+.bg-white {
+  background-color: #ffffff;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.shadow {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-x-auto {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+tbody {
+  tr {
+    border-bottom: 1px solid #e5e7eb;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background-color: #f9fafb;
+    }
+
+    td {
+      padding: 1rem 1.5rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+tfoot {
+  tr {
+    border-top: 1px solid #e5e7eb;
+
+    td {
+      padding: 1rem 1.5rem;
+      font-size: 0.875rem;
+    }
+  }
+}
+
+.p-8 {
+  padding: 2rem;
+}
+
+.p-12 {
+  padding: 3rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.text-gray-600 {
+  color: #6b7280;
+}
+
+.text-gray-900 {
+  color: #111827;
+}
+
+.text-lg {
+  font-size: 1.125rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem;
+}
+
+.py-1 {
+  padding-top: 0.25rem;
+  padding-bottom: 0.25rem;
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.px-6 {
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+}
+
+.py-4 {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+.bg-green-50 {
+  background-color: #f0fdf4;
+}
+
+.text-green-700 {
+  color: #15803d;
+}
+
+.border {
+  border: 1px solid;
+}
+
+.border-green-200 {
+  border-color: #dcfce7;
+}
+
+.bg-yellow-50 {
+  background-color: #fefce8;
+}
+
+.text-yellow-700 {
+  color: #ca8a04;
+}
+
+.border-yellow-200 {
+  border-color: #fef08a;
+}
+
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+
+.text-red-700 {
+  color: #b91c1c;
+}
+
+.border-red-200 {
+  border-color: #fecaca;
+}
+
+.bg-gray-50 {
+  background-color: #f9fafb;
+}
+
+.text-gray-700 {
+  color: #374151;
+}
+
+.border-gray-200 {
+  border-color: #e5e7eb;
+}

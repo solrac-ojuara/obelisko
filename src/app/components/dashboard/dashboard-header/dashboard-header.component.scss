@@ -1,0 +1,21 @@
+// Dashboard header component styles
+h2 {
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+p {
+  color: #6b7280;
+}
+
+button {
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

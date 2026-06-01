@@ -1,0 +1,238 @@
+// Login component styles
+.min-h-screen {
+  min-height: 100vh;
+}
+
+.flex {
+  display: flex;
+}
+
+.items-center {
+  align-items: center;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.bg-gradient-to-br {
+  background-image: linear-gradient(to bottom right, #001f3f, #003d66, #0a1f3f);
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.w-full {
+  width: 100%;
+}
+
+.max-w-md {
+  max-width: 28rem;
+}
+
+.bg-white {
+  background-color: #ffffff;
+}
+
+.rounded-2xl {
+  border-radius: 1rem;
+}
+
+.shadow-2xl {
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+}
+
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.px-8 {
+  padding-left: 2rem;
+  padding-right: 2rem;
+}
+
+.py-12 {
+  padding-top: 3rem;
+  padding-bottom: 3rem;
+}
+
+.text-white {
+  color: #ffffff;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.space-y-2 > * + * {
+  margin-top: 0.5rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.w-12 {
+  width: 3rem;
+}
+
+.h-12 {
+  height: 3rem;
+}
+
+.rounded-lg {
+  border-radius: 0.5rem;
+}
+
+.text-3xl {
+  font-size: 1.875rem;
+}
+
+.font-bold {
+  font-weight: 700;
+}
+
+.tracking-tight {
+  letter-spacing: -0.015em;
+}
+
+.py-8 {
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.text-sm {
+  font-size: 0.875rem;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.px-4 {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.py-3 {
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
+
+.border {
+  border: 1px solid;
+}
+
+.border-gray-300 {
+  border-color: #d1d5db;
+}
+
+.focus {
+  &:focus {
+    outline: none;
+    ring: 2px;
+    ring-color: #ffd700;
+    border-color: transparent;
+  }
+}
+
+.transition {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+.w-4 {
+  width: 1rem;
+}
+
+.h-4 {
+  height: 1rem;
+}
+
+.bg-gray-100 {
+  background-color: #f3f4f6;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.text-gray-600 {
+  color: #6b7280;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.duration-200 {
+  transition-duration: 200ms;
+}
+
+.transform {
+  transform: translate(0);
+}
+
+.hover\\:scale-105:hover {
+  transform: scale(1.05);
+}
+
+.disabled\\:hover\\:scale-100:disabled:hover {
+  transform: scale(1);
+}
+
+input[type='email'],
+input[type='password'],
+input[type='checkbox'] {
+  font-family: inherit;
+}
+
+input[type='email']:focus,
+input[type='password']:focus {
+  box-shadow: 0 0 0 3px rgba(255, 215, 0, 0.1);
+}
+
+a {
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.text-xs {
+  font-size: 0.75rem;
+}
+
+.text-blue-600 {
+  color: #2563eb;
+}
+
+.hover\\:text-blue-900:hover {
+  color: #001f3f;
+}
+
+.bg-red-50 {
+  background-color: #fef2f2;
+}
+
+.border-red-200 {
+  border-color: #fecaca;
+}
+
+.text-red-700 {
+  color: #b91c1c;
+}

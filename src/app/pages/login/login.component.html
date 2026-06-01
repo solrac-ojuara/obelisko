@@ -1,0 +1,97 @@
+<div
+  class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 px-4"
+>
+  <!-- Container Principal -->
+  <div class="w-full max-w-md">
+    <!-- Card de Login -->
+    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
+      <!-- Header com Fundo Azul -->
+      <div
+        class="bg-gradient-to-r px-8 py-12 text-white"
+        [style]="'background: linear-gradient(135deg, #001F3F, #003D66)'"
+      >
+        <div class="text-center space-y-2">
+          <!-- Logo/Icon -->
+          <div class="flex justify-center mb-4">
+            <div
+              class="w-12 h-12 bg-yellow-400 rounded-lg flex items-center justify-center font-bold text-blue-900 text-xl"
+              [style]="'background-color: #FFD700; color: #001F3F'"
+            >
+              O
+            </div>
+          </div>
+          <h1 class="text-3xl font-bold tracking-tight">Obelisko</h1>
+        </div>
+      </div>
+
+      <!-- Formulário -->
+      <form (ngSubmit)="onSubmit()" class="px-8 py-8 space-y-6">
+        <!-- Erro -->
+        <div *ngIf="error" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg">
+          {{ error }}
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label for="email" class="block text-sm font-semibold mb-2" [style]="'color: #001F3F'">
+            E-mail
+          </label>
+          <input
+            id="email"
+            type="email"
+            [(ngModel)]="email"
+            name="email"
+            placeholder="seu@email.com"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition"
+            [style.--focus-ring-color]="'#FFD700'"
+            required
+          />
+        </div>
+
+        <!-- Senha -->
+        <div>
+          <div class="flex justify-between items-center mb-2">
+            <label for="password" class="block text-sm font-semibold" [style]="'color: #001F3F'">
+              Senha
+            </label>
+            <a href="#" class="text-xs text-blue-600 hover:text-blue-900 font-medium"> Esqueceu a senha? </a>
+          </div>
+          <input
+            id="password"
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            placeholder="••••••••"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:border-transparent transition"
+            [style.--focus-ring-color]="'#FFD700'"
+            required
+          />
+        </div>
+
+        <!-- Checkbox -->
+        <div class="flex items-center">
+          <input
+            id="remember"
+            type="checkbox"
+            [(ngModel)]="rememberMe"
+            name="rememberMe"
+            class="w-4 h-4 text-yellow-400 bg-gray-100 border-gray-300 rounded focus:ring-2 focus:ring-yellow-400 cursor-pointer"
+          />
+          <label for="remember" class="ml-2 text-sm text-gray-600 cursor-pointer">
+            Manter-me conectado
+          </label>
+        </div>
+
+        <!-- Botão de Login -->
+        <button
+          type="submit"
+          [disabled]="isLoading"
+          class="w-full font-bold py-3 rounded-lg transition duration-200 transform hover:scale-105 disabled:hover:scale-100 text-blue-900"
+          [style]="'background: linear-gradient(135deg, #FFD700, #FFE135)'"
+        >
+          {{ isLoading ? 'Conectando...' : 'Entrar' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
