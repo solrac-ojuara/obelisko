@@ -25,31 +25,14 @@
     <!-- PASSO 1: input -->
     <div *ngIf="step === 'input'" style="padding:1.5rem 1.75rem">
       <div style="margin-bottom:1rem">
-        <label style="display:block; font-size:0.78rem; font-weight:600; color:#374151; margin-bottom:5px">CNPJ da empresa</label>
-        <input type="text" [(ngModel)]="cnpjInput" maxlength="18"
-          placeholder="Ex: 42.604.816/0480-30"
-          style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:0.875rem; outline:none"
-          onfocus="this.style.borderColor='#FFD700'; this.style.boxShadow='0 0 0 3px rgba(255,215,0,0.15)'"
-          onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'" />
-      </div>
-
-      <div style="margin-bottom:1rem">
         <label style="display:block; font-size:0.78rem; font-weight:600; color:#374151; margin-bottom:5px">Chave de Acesso (44 dígitos)</label>
         <input type="text" [(ngModel)]="chaveNfe" maxlength="44"
           placeholder="Ex: 35250112345678000195550010000001231000012345"
           style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:0.8rem; font-family:monospace; outline:none"
           onfocus="this.style.borderColor='#FFD700'; this.style.boxShadow='0 0 0 3px rgba(255,215,0,0.15)'"
-          onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'" />
-        <p style="font-size:0.7rem; color:#9ca3af; margin:4px 0 0">{{ chaveNfe.length }}/44 dígitos</p>
-      </div>
-
-      <div>
-        <label style="display:block; font-size:0.78rem; font-weight:600; color:#374151; margin-bottom:5px">Senha do Certificado</label>
-        <input type="password" [(ngModel)]="certPassword"
-          placeholder="Senha do arquivo .pfx"
-          style="width:100%; box-sizing:border-box; padding:9px 12px; border:1px solid #d1d5db; border-radius:7px; font-size:0.875rem; outline:none"
-          onfocus="this.style.borderColor='#FFD700'; this.style.boxShadow='0 0 0 3px rgba(255,215,0,0.15)'"
-          onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'" />
+          onblur="this.style.borderColor='#d1d5db'; this.style.boxShadow='none'"
+          (keyup.enter)="onBuscar()" />
+        <p style="font-size:0.7rem; color:#9ca3af; margin:4px 0 0">{{ chaveNfeLen }}/44 dígitos</p>
       </div>
 
       <div *ngIf="error" style="margin-top:10px; font-size:0.78rem; color:#dc2626; background:#fff5f5; border:1px solid #fecaca; border-radius:6px; padding:8px 10px">

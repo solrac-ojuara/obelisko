@@ -7,10 +7,6 @@ export interface NfeProduto {
   valorTotal: number;
 }
 
-export interface NfeConsultaRequest {
-  chaveNfe: string;
-}
-
 export interface NfeConsultaResponse {
   produtos: NfeProduto[];
   emitente: string;

@@ -19,7 +19,6 @@
 
   <app-add-purchase-modal
     *ngIf="isModalOpen"
-    [cnpj]="userCnpj"
     (importar)="onImportarProdutos($event)"
     (cancelar)="onCloseModal()"
   ></app-add-purchase-modal>

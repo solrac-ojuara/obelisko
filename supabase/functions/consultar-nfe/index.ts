@@ -1,8 +1,6 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { parsePfx } from "./cert-parser.ts";
-import { buildSoapEnvelope } from "./soap-builder.ts";
-import { postToSefaz } from "./sefaz-client.ts";
-import { parseNfeResponse } from "./nfe-parser.ts";
+import { consultarNfeFocus } from "./focus-client.ts";
+import { mapFocusResponse } from "./nfe-mapper.ts";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -16,46 +14,51 @@ function json(data: unknown, status = 200) {
   });
 }
 
-async function downloadCert(cnpj: string): Promise<string> {
+async function getFocusToken(userId: string): Promise<string> {
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
   );
-  const cnpjLimpo = cnpj.replace(/[.\-\/]/g, "");
-  const candidates = [
-    `certificado_${cnpjLimpo}.pfx`,
-    `certificado_${cnpjLimpo}.p12`,
-    `certificado_${cnpjLimpo}`,
-  ];
+  const { data, error } = await supabase
+    .from("perfil")
+    .select("focusnfe_token")
+    .eq("id", userId)
+    .single();
 
-  for (const fileName of candidates) {
-    const { data } = await supabase.storage.from("certificados").download(fileName);
-    if (data) {
-      const buf = await data.arrayBuffer();
-      return btoa(String.fromCharCode(...new Uint8Array(buf)));
-    }
+  if (error || !data?.focusnfe_token) {
+    throw new Error("Token Focus NFe não configurado para este usuário");
   }
-
-  throw new Error(`Certificado não encontrado no storage para CNPJ ${cnpjLimpo}`);
+  return data.focusnfe_token;
 }
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: CORS });
 
   try {
-    const { cnpj, chaveNfe, certPassword } = await req.json();
-    if (!cnpj || !chaveNfe || !certPassword) {
-      return json({ message: "cnpj, chaveNfe e certPassword são obrigatórios" }, 400);
+    const authHeader = req.headers.get("Authorization") ?? "";
+    const jwt = authHeader.replace("Bearer ", "");
+
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!
+    );
+    const { data: { user }, error: authError } = await supabase.auth.getUser(jwt);
+    if (authError || !user) {
+      return json({ message: "Não autorizado" }, 401);
     }
-    if (chaveNfe.length !== 44) {
+
+    const { chaveNfe } = await req.json();
+    if (!chaveNfe) {
+      return json({ message: "chaveNfe é obrigatório" }, 400);
+    }
+    const chave = String(chaveNfe).replace(/\D/g, "");
+    if (chave.length !== 44) {
       return json({ message: "Chave de acesso deve ter 44 dígitos" }, 400);
     }
 
-    const pfxBase64 = await downloadCert(cnpj);
-    const cert = parsePfx(pfxBase64, certPassword);
-    const soap = buildSoapEnvelope({ cnpj: cnpj.replace(/[.\-\/]/g, ""), chaveNfe });
-    const soapResponse = await postToSefaz(soap, cert);
-    const nfeData = await parseNfeResponse(soapResponse);
+    const token = await getFocusToken(user.id);
+    const focusData = await consultarNfeFocus(chave, token);
+    const nfeData = mapFocusResponse(focusData);
 
     return json(nfeData);
   } catch (err: unknown) {

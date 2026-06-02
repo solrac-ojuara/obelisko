@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnChanges } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NfeService } from '../../../services/nfe.service';
@@ -10,49 +10,32 @@ import { NfeProduto, NfeConsultaResponse } from '../../../models/nfe';
   imports: [CommonModule, FormsModule],
   templateUrl: './add-purchase-modal.component.html',
 })
-export class AddPurchaseModalComponent implements OnChanges {
-  @Input() cnpj: string = '';
+export class AddPurchaseModalComponent {
   @Output() importar = new EventEmitter<NfeProduto[]>();
   @Output() cancelar = new EventEmitter<void>();
 
   step: 'input' | 'preview' = 'input';
-  cnpjInput: string = '';
   chaveNfe: string = '';
-  certPassword: string = '';
   isLoading: boolean = false;
   error: string = '';
   nfeData: NfeConsultaResponse | null = null;
 
-  ngOnChanges(): void {
-    if (this.cnpj && !this.cnpjInput) {
-      this.cnpjInput = this.cnpj;
-    }
+  get chaveNfeLen(): number {
+    return this.chaveNfe.replace(/\D/g, '').length;
   }
 
   constructor(private nfeService: NfeService) {}
 
   async onBuscar(): Promise<void> {
-    const cnpj = this.cnpjInput.trim().replace(/[.\-\/]/g, '');
-    if (cnpj.length !== 14) {
-      this.error = 'Informe o CNPJ completo (14 dígitos).';
-      return;
-    }
-    if (this.chaveNfe.trim().length !== 44) {
+    const chave = this.chaveNfe.trim().replace(/\D/g, '');
+    if (chave.length !== 44) {
       this.error = 'A chave de acesso deve ter exatamente 44 dígitos.';
-      return;
-    }
-    if (!this.certPassword.trim()) {
-      this.error = 'Informe a senha do certificado.';
       return;
     }
     this.error = '';
     this.isLoading = true;
     try {
-      this.nfeData = await this.nfeService.consultar({
-        cnpj: this.cnpjInput.trim(),
-        chaveNfe: this.chaveNfe.trim(),
-        certPassword: this.certPassword,
-      });
+      this.nfeData = await this.nfeService.consultar({ chaveNfe: chave });
       this.step = 'preview';
     } catch (err: any) {
       this.error = err?.message ?? 'Erro ao consultar nota fiscal.';
@@ -75,9 +58,7 @@ export class AddPurchaseModalComponent implements OnChanges {
 
   onCancelar(): void {
     this.step = 'input';
-    this.cnpjInput = this.cnpj;
     this.chaveNfe = '';
-    this.certPassword = '';
     this.error = '';
     this.nfeData = null;
     this.cancelar.emit();
