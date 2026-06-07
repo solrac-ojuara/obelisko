@@ -11,6 +11,7 @@ export interface FocusNfeResponse {
   nome_emitente: string;
   data_emissao: string;
   situacao: string;
+  manifestacao_destinatario: string | null;
   nfe_completa: boolean;
   requisicao_nota_fiscal?: {
     itens: FocusNfeItem[];

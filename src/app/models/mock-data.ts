@@ -5,7 +5,7 @@ import { Produto, StatsData } from './produto';
  */
 export const mockProdutos: Produto[] = [
   {
-    id: 1,
+    id: '1',
     sku: 'SKU001',
     produto: 'Notebook Dell Inspiron',
     categoria: 'Eletrônicos',
@@ -14,7 +14,7 @@ export const mockProdutos: Produto[] = [
     status: 'Em estoque',
   },
   {
-    id: 2,
+    id: '2',
     sku: 'SKU002',
     produto: 'Mouse Logitech MX',
     categoria: 'Periféricos',
@@ -23,7 +23,7 @@ export const mockProdutos: Produto[] = [
     status: 'Em estoque',
   },
   {
-    id: 3,
+    id: '3',
     sku: 'SKU003',
     produto: 'Teclado Mecânico RGB',
     categoria: 'Periféricos',
@@ -32,7 +32,7 @@ export const mockProdutos: Produto[] = [
     status: 'Baixo estoque',
   },
   {
-    id: 4,
+    id: '4',
     sku: 'SKU004',
     produto: 'Monitor LG 27"',
     categoria: 'Monitores',
@@ -41,7 +41,7 @@ export const mockProdutos: Produto[] = [
     status: 'Fora de estoque',
   },
   {
-    id: 5,
+    id: '5',
     sku: 'SKU005',
     produto: 'Webcam Logitech 4K',
     categoria: 'Periféricos',

@@ -2,13 +2,17 @@
  * Modelo de Produto
  */
 export interface Produto {
-  id: number;
+  id: string;
+  usuario_id?: string;
   sku: string;
   produto: string;
   categoria: string;
   quantidade: number;
   valor: number;
+  valor_atual?: number;
   status: 'Em estoque' | 'Baixo estoque' | 'Fora de estoque';
+  criado_em?: string;
+  atualizado_em?: string;
 }
 
 /**

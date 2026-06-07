@@ -1,0 +1,28 @@
+<h2 mat-dialog-title class="!text-base !font-semibold" style="color: #001F3F">
+  Remover do estoque
+</h2>
+
+<mat-dialog-content class="!pt-2 !pb-0">
+  <p class="text-sm text-gray-500 mb-1 truncate">{{ product.produto }}</p>
+  <p class="text-xs text-gray-400 mb-5">
+    Estoque atual:
+    <span class="font-semibold text-gray-700">{{ product.quantidade }}</span> unidade(s)
+  </p>
+
+  <mat-form-field appearance="outline" class="w-full">
+    <mat-label>Quantidade a remover</mat-label>
+    <input matInput type="number" min="1" [max]="product.quantidade" [(ngModel)]="quantidadeRemover" />
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" class="!px-6 !pb-6 !pt-2 !gap-2">
+  <button mat-stroked-button mat-dialog-close>Cancelar</button>
+  <button
+    mat-flat-button
+    color="warn"
+    (click)="remove()"
+    [disabled]="isRemoving || quantidadeRemover <= 0"
+  >
+    {{ isRemoving ? 'Removendo...' : 'Remover do estoque' }}
+  </button>
+</mat-dialog-actions>

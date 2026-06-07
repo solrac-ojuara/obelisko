@@ -29,12 +29,6 @@
               </th>
               <th
                 class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
-                (click)="onSort('categoria')"
-              >
-                Categoria {{ sortBy === 'categoria' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
-              </th>
-              <th
-                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
                 (click)="onSort('quantidade')"
               >
                 Quantidade {{ sortBy === 'quantidade' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
@@ -51,34 +45,80 @@
               >
                 Status {{ sortBy === 'status' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
               </th>
+              <th class="px-4 py-4 text-right text-sm font-semibold">Ações</th>
             </tr>
           </thead>
           <tbody>
             <tr *ngFor="let product of products" class="border-b border-gray-200 hover:bg-gray-50">
               <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ product.sku }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">{{ product.produto }}</td>
-              <td class="px-6 py-4 text-sm text-gray-600">{{ product.categoria }}</td>
               <td class="px-6 py-4 text-sm font-medium text-gray-900">{{ product.quantidade }}</td>
               <td class="px-6 py-4 text-sm text-gray-600">
-                R$ {{ product.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+                <span [class]="product.valor_atual ? 'font-semibold text-gray-900' : ''">
+                  R$ {{ (product.valor_atual ?? product.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+                </span>
+                <span *ngIf="product.valor_atual" class="block text-xs text-gray-400 line-through">
+                  R$ {{ product.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
+                </span>
               </td>
               <td class="px-6 py-4">
                 <span [ngClass]="getStatusColor(product.status)" class="px-3 py-1 rounded-full text-xs font-semibold">
                   {{ product.status }}
                 </span>
               </td>
+              <td class="px-4 py-4">
+                <div class="flex items-center justify-end gap-1">
+                  <app-product-stock-remove-button (open)="openStockRemove(product)" />
+                  <app-product-settings-button (open)="openSettings(product)" />
+                </div>
+              </td>
             </tr>
           </tbody>
           <tfoot [style]="'background-color: #F9FAFB'">
             <tr class="border-t border-gray-200">
-              <td colspan="4" class="px-6 py-4 text-sm font-semibold">Total:</td>
+              <td colspan="3" class="px-6 py-4 text-sm font-semibold">Total:</td>
               <td class="px-6 py-4 text-sm font-bold" [style]="'color: #001F3F'">
                 R$ {{ getTotalValue().toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
               </td>
+              <td colspan="2"></td>
             </tr>
           </tfoot>
         </table>
       </div>
+
+      <div class="flex items-center justify-between px-6 py-4 border-t border-gray-200 bg-white">
+        <span class="text-sm text-gray-600">
+          Página {{ currentPage }} de {{ totalPages }}
+        </span>
+        <div class="flex items-center gap-1">
+          <button
+            (click)="onPrev()"
+            [disabled]="currentPage === 1"
+            class="px-3 py-1 rounded text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ‹
+          </button>
+          <ng-container *ngFor="let p of getPages()">
+            <button
+              (click)="pageChange.emit(p)"
+              [class]="p === currentPage
+                ? 'px-3 py-1 rounded text-sm font-medium text-white'
+                : 'px-3 py-1 rounded text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50'"
+              [style]="p === currentPage ? 'background-color: #001F3F' : ''"
+            >
+              {{ p }}
+            </button>
+          </ng-container>
+          <button
+            (click)="onNext()"
+            [disabled]="currentPage === totalPages"
+            class="px-3 py-1 rounded text-sm font-medium border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            ›
+          </button>
+        </div>
+      </div>
     </ng-template>
   </ng-template>
+
 </div>

@@ -17,5 +17,8 @@ export function mapFocusResponse(data: FocusNfeResponse): NfeConsultaResponse {
     produtos,
     emitente: data.requisicao_nota_fiscal?.nome_emitente ?? data.nome_emitente ?? "",
     dataEmissao: data.requisicao_nota_fiscal?.data_emissao ?? data.data_emissao ?? "",
+    nfe_completa: data.nfe_completa ?? false,
+    situacao: data.situacao ?? "",
+    manifestacao_destinatario: data.manifestacao_destinatario ?? null,
   };
 }

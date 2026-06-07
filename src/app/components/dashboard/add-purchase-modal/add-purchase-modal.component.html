@@ -40,7 +40,22 @@
       </div>
     </div>
 
-    <!-- PASSO 2: preview -->
+    <!-- PASSO 2: aguardando manifesto -->
+    <div *ngIf="step === 'waiting'" style="padding:2rem 1.75rem; text-align:center">
+      <div style="width:56px; height:56px; border-radius:50%; background:#FFF9E6; display:inline-flex; align-items:center; justify-content:center; margin-bottom:1rem">
+        <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#F5C400" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h4 style="font-size:0.95rem; font-weight:700; color:#001F3F; margin:0 0 8px">Nota registrada com sucesso</h4>
+      <p style="font-size:0.82rem; color:#6b7280; margin:0 0 6px; line-height:1.5">
+        A ciência da operação foi enviada à SEFAZ. Aguarde alguns minutos e consulte novamente a chave para importar os produtos.
+      </p>
+      <p style="font-size:0.75rem; color:#9ca3af; margin:0">A chave foi salva — não será necessário digitá-la novamente.</p>
+    </div>
+
+    <!-- PASSO 3: preview -->
     <div *ngIf="step === 'preview' && nfeData" style="padding:1.25rem 1.75rem">
       <div style="margin-bottom:1rem; padding:10px 12px; background:#f9fafb; border-radius:8px; border:1px solid #e5e7eb">
         <p style="font-size:0.75rem; color:#6b7280; margin:0">Emitente: <strong style="color:#111827">{{ nfeData.emitente }}</strong></p>
@@ -78,15 +93,20 @@
       <button (click)="onCancelar()"
         style="font-size:0.8rem; font-weight:500; padding:8px 16px; border-radius:7px; border:1px solid #e5e7eb; background:#fff; color:#6b7280; cursor:pointer"
         onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background='#fff'">
-        Cancelar
+        {{ step === 'waiting' ? 'Fechar' : 'Cancelar' }}
       </button>
 
-      <button *ngIf="step === 'input'" (click)="onBuscar()" [disabled]="isLoading"
-        style="font-size:0.8rem; font-weight:600; padding:8px 20px; border-radius:7px; border:none; background:linear-gradient(135deg,#FFD700,#F5C400); color:#001F3F; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 2px 8px rgba(245,196,0,0.3)">
-        <svg *ngIf="!isLoading" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+      <button *ngIf="step === 'input'" (click)="onBuscar()" [disabled]="isLoading || cooldownSeconds > 0"
+        [style]="'font-size:0.8rem; font-weight:600; padding:8px 20px; border-radius:7px; border:none; color:#001F3F; cursor:pointer; display:inline-flex; align-items:center; gap:6px; ' + (cooldownSeconds > 0 ? 'background:#e5e7eb; box-shadow:none; cursor:not-allowed; opacity:0.7' : 'background:linear-gradient(135deg,#FFD700,#F5C400); box-shadow:0 2px 8px rgba(245,196,0,0.3)')">
+        <svg *ngIf="!isLoading && cooldownSeconds === 0" xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        {{ isLoading ? 'Buscando...' : 'Buscar' }}
+        {{ isLoading ? 'Buscando...' : cooldownSeconds > 0 ? 'Aguarde ' + cooldownSeconds + 's' : 'Buscar' }}
+      </button>
+
+      <button *ngIf="step === 'waiting'" (click)="onVoltar()"
+        style="font-size:0.8rem; font-weight:600; padding:8px 20px; border-radius:7px; border:none; background:linear-gradient(135deg,#FFD700,#F5C400); color:#001F3F; cursor:pointer; box-shadow:0 2px 8px rgba(245,196,0,0.3)">
+        Consultar novamente
       </button>
 
       <button *ngIf="step === 'preview'" (click)="onImportar()"

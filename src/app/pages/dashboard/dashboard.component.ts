@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
 import { NavigationComponent } from '../../components/dashboard/navigation/navigation.component';
 import { AddPurchaseModalComponent } from '../../components/dashboard/add-purchase-modal/add-purchase-modal.component';
@@ -38,57 +38,63 @@ export class DashboardComponent implements OnInit {
   };
   isLoading: boolean = false;
   searchTerm: string = '';
-  sortBy: keyof Produto = 'produto';
-  sortOrder: 'asc' | 'desc' = 'asc';
+  sortBy: keyof Produto = 'criado_em' as keyof Produto;
+  sortOrder: 'asc' | 'desc' = 'desc';
   isModalOpen: boolean = false;
   userCnpj: string = '';
+  currentPage: number = 1;
+  totalPages: number = 1;
+  private dataLoaded = false;
 
   constructor(
+    @Inject(PLATFORM_ID) private platformId: Object,
     private dashboardService: DashboardService,
     private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Verificar se está autenticado
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/login']);
-      return;
-    }
+    if (!isPlatformBrowser(this.platformId)) return;
 
     this.authService.user$.subscribe((user: AppUser | null) => {
       this.userCnpj = user?.cnpj ?? '';
+      if (user && !this.dataLoaded) {
+        this.dataLoaded = true;
+        this.loadData();
+      } else if (user === null && this.dataLoaded) {
+        this.router.navigate(['/login']);
+      }
     });
-    this.loadData();
   }
 
   loadData(): void {
-    this.isLoading = true;
-
     this.dashboardService.getProducts().subscribe((products) => {
       this.products = products;
       this.filteredProducts = products;
-      this.isLoading = false;
     });
 
     this.dashboardService.getStats().subscribe((stats) => {
       this.stats = stats;
     });
+
+    this.dashboardService.loading$.subscribe((loading) => {
+      this.isLoading = loading;
+    });
+
+    this.dashboardService.currentPage$.subscribe((page) => {
+      this.currentPage = page;
+    });
+
+    this.dashboardService.totalPages$.subscribe((pages) => {
+      this.totalPages = pages;
+    });
+
+    this.dashboardService.loadProducts();
   }
 
   onSearchChange(term: string): void {
     this.searchTerm = term;
-
-    if (term.trim() === '') {
-      this.filteredProducts = this.products;
-    } else {
-      this.filteredProducts = this.products.filter(
-        (p: Produto) =>
-          p.produto.toLowerCase().includes(term.toLowerCase()) ||
-          p.sku.toLowerCase().includes(term.toLowerCase()) ||
-          p.categoria.toLowerCase().includes(term.toLowerCase())
-      );
-    }
+    this.dashboardService.loadProducts(1, this.sortBy as string, this.sortOrder, term);
   }
 
   onSort(column: keyof Produto): void {
@@ -98,20 +104,19 @@ export class DashboardComponent implements OnInit {
       this.sortBy = column;
       this.sortOrder = 'asc';
     }
+    this.dashboardService.loadProducts(this.currentPage, this.sortBy as string, this.sortOrder, this.searchTerm);
+  }
 
-    this.filteredProducts = this.dashboardService.sortProducts(
-      this.filteredProducts,
-      this.sortBy,
-      this.sortOrder
-    );
+  onPageChange(page: number): void {
+    this.dashboardService.loadProducts(page, this.sortBy as string, this.sortOrder, this.searchTerm);
   }
 
   onAddPurchase(): void {
     this.isModalOpen = true;
   }
 
-  onImportarProdutos(produtos: NfeProduto[]): void {
-    this.dashboardService.addFromNfe(produtos);
+  async onImportarProdutos(produtos: NfeProduto[]): Promise<void> {
+    await this.dashboardService.addFromNfe(produtos);
     this.isModalOpen = false;
   }
 

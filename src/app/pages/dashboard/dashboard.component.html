@@ -13,7 +13,10 @@
       [sortBy]="sortBy"
       [sortOrder]="sortOrder"
       [isLoading]="isLoading"
+      [currentPage]="currentPage"
+      [totalPages]="totalPages"
       (sort)="onSort($event)"
+      (pageChange)="onPageChange($event)"
     ></app-product-table>
   </main>
 
