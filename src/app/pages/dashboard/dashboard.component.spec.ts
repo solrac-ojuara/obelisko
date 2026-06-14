@@ -2,27 +2,69 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { DashboardComponent } from './dashboard.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { AuthService } from '../../services/auth.service';
+import { SupabaseService } from '../../services/supabase-service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+import { BehaviorSubject, of } from 'rxjs';
 import { mockProdutos, mockStats } from '../../models/mock-data';
+import { AppUser } from '../../models/produto';
+
+const mockUser: AppUser = { id: '1', email: 'test@example.com', role: 'admin' };
+
+class MockSupabaseService {
+  getClient() { return {} as any; }
+}
+
+class MockDashboardService {
+  private userSubject = new BehaviorSubject(mockProdutos);
+  loading$ = of(false);
+  currentPage$ = of(1);
+  totalPages$ = of(1);
+  loadProducts: jasmine.Spy;
+  addFromNfe: jasmine.Spy;
+  updateProduct: jasmine.Spy;
+  deleteProduct: jasmine.Spy;
+
+  constructor() {
+    this.loadProducts = jasmine.createSpy('loadProducts').and.returnValue(Promise.resolve());
+    this.addFromNfe = jasmine.createSpy('addFromNfe').and.returnValue(Promise.resolve());
+    this.updateProduct = jasmine.createSpy('updateProduct').and.returnValue(Promise.resolve());
+    this.deleteProduct = jasmine.createSpy('deleteProduct').and.returnValue(Promise.resolve());
+  }
+
+  getProducts() { return of(mockProdutos); }
+  getStats() { return of(mockStats); }
+}
+
+class MockAuthService {
+  private userSubject = new BehaviorSubject<AppUser | null>(null);
+  user$ = this.userSubject.asObservable();
+
+  isAuthenticated() { return this.userSubject.value !== null; }
+  logout() { return Promise.resolve(); }
+  emit(user: AppUser | null) { this.userSubject.next(user); }
+}
 
 describe('DashboardComponent', () => {
   let component: DashboardComponent;
   let fixture: ComponentFixture<DashboardComponent>;
-  let dashboardService: DashboardService;
-  let authService: AuthService;
+  let dashboardService: MockDashboardService;
+  let authServiceMock: MockAuthService;
   let router: Router;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [DashboardComponent],
-      providers: [DashboardService, AuthService],
+      providers: [
+        { provide: DashboardService, useClass: MockDashboardService },
+        { provide: AuthService, useClass: MockAuthService },
+        { provide: SupabaseService, useClass: MockSupabaseService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(DashboardComponent);
     component = fixture.componentInstance;
-    dashboardService = TestBed.inject(DashboardService);
-    authService = TestBed.inject(AuthService);
+    dashboardService = TestBed.inject(DashboardService) as unknown as MockDashboardService;
+    authServiceMock = TestBed.inject(AuthService) as unknown as MockAuthService;
     router = TestBed.inject(Router);
   });
 
@@ -30,40 +72,32 @@ describe('DashboardComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should load data on init', () => {
-    spyOn(authService, 'isAuthenticated').and.returnValue(true);
-    spyOn(dashboardService, 'getProducts').and.returnValue(of(mockProdutos));
-    spyOn(dashboardService, 'getStats').and.returnValue(of(mockStats));
-
+  it('should load data on init when user is present', () => {
+    authServiceMock.emit(mockUser);
     component.ngOnInit();
 
     expect(component.products).toEqual(mockProdutos);
     expect(component.stats).toEqual(mockStats);
   });
 
-  it('should filter products on search', () => {
-    component.products = mockProdutos;
-    component.filteredProducts = mockProdutos;
-
+  it('should call loadProducts with search term on search change', () => {
     component.onSearchChange('Notebook');
 
-    expect(component.filteredProducts.length).toBe(1);
-    expect(component.filteredProducts[0].produto).toContain('Notebook');
+    expect(dashboardService.loadProducts).toHaveBeenCalledWith(
+      1, jasmine.any(String), jasmine.any(String), 'Notebook'
+    );
+    expect(component.searchTerm).toBe('Notebook');
   });
 
-  it('should clear filter on empty search', () => {
-    component.products = mockProdutos;
-    component.filteredProducts = [];
-
+  it('should call loadProducts with empty term to clear filter', () => {
     component.onSearchChange('');
 
-    expect(component.filteredProducts).toEqual(mockProdutos);
+    expect(dashboardService.loadProducts).toHaveBeenCalledWith(
+      1, jasmine.any(String), jasmine.any(String), ''
+    );
   });
 
-  it('should sort products on sort event', () => {
-    component.products = mockProdutos;
-    component.filteredProducts = [...mockProdutos];
-
+  it('should set sortBy and sortOrder on sort event', () => {
     component.onSort('produto');
 
     expect(component.sortBy).toBe('produto');
@@ -71,8 +105,6 @@ describe('DashboardComponent', () => {
   });
 
   it('should toggle sort order on same column', () => {
-    component.products = mockProdutos;
-    component.filteredProducts = [...mockProdutos];
     component.sortBy = 'produto';
     component.sortOrder = 'asc';
 
@@ -81,11 +113,11 @@ describe('DashboardComponent', () => {
     expect(component.sortOrder).toBe('desc');
   });
 
-  it('should redirect to login if not authenticated', () => {
-    spyOn(authService, 'isAuthenticated').and.returnValue(false);
+  it('should redirect to login when user logs out after being authenticated', () => {
     spyOn(router, 'navigate');
-
+    authServiceMock.emit(mockUser);
     component.ngOnInit();
+    authServiceMock.emit(null);
 
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
   });

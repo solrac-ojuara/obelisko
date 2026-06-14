@@ -1,7 +1,18 @@
 import { TestBed } from '@angular/core/testing';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from '../services/auth.service';
+import { SupabaseService } from '../services/supabase-service';
 import { Router } from '@angular/router';
+
+class MockSupabaseService {
+  getClient() {
+    return {
+      auth: {
+        getSession: () => Promise.resolve({ data: { session: null } }),
+      },
+    } as any;
+  }
+}
 
 describe('AuthGuard', () => {
   let guard: AuthGuard;
@@ -10,7 +21,11 @@ describe('AuthGuard', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [AuthGuard, AuthService],
+      providers: [
+        AuthGuard,
+        AuthService,
+        { provide: SupabaseService, useClass: MockSupabaseService },
+      ],
     });
     guard = TestBed.inject(AuthGuard);
     authService = TestBed.inject(AuthService);

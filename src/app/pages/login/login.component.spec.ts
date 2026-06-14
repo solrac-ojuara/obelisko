@@ -1,8 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { LoginComponent } from './login.component';
 import { AuthService } from '../../services/auth.service';
+import { SupabaseService } from '../../services/supabase-service';
 import { Router } from '@angular/router';
-import { of } from 'rxjs';
+
+class MockSupabaseService {
+  getClient() { return {} as any; }
+}
 
 describe('LoginComponent', () => {
   let component: LoginComponent;
@@ -13,7 +17,10 @@ describe('LoginComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [LoginComponent],
-      providers: [AuthService],
+      providers: [
+        AuthService,
+        { provide: SupabaseService, useClass: MockSupabaseService },
+      ],
     }).compileComponents();
 
     fixture = TestBed.createComponent(LoginComponent);
@@ -39,7 +46,9 @@ describe('LoginComponent', () => {
   it('should call authService.login on valid submit', () => {
     component.email = 'test@example.com';
     component.password = 'password';
-    spyOn(authService, 'login').and.returnValue(of({ id: '1', email: 'test@example.com', nome: 'Test', role: 'admin' }));
+    spyOn(authService, 'login').and.returnValue(
+      Promise.resolve({ id: '1', email: 'test@example.com', role: 'admin' })
+    );
     spyOn(router, 'navigate');
 
     component.onSubmit();
@@ -47,14 +56,13 @@ describe('LoginComponent', () => {
     expect(authService.login).toHaveBeenCalledWith('test@example.com', 'password');
   });
 
-  it('should set isLoading to true on submit', () => {
+  it('should set isLoading to true during submit', () => {
     component.email = 'test@example.com';
     component.password = 'password';
-    spyOn(authService, 'login').and.returnValue(of({ id: '1', email: 'test@example.com', nome: 'Test', role: 'admin' }));
+    spyOn(authService, 'login').and.returnValue(new Promise(() => {}));
 
     component.onSubmit();
 
-    // After the observable completes, isLoading should be false
-    fixture.detectChanges();
+    expect(component.isLoading).toBe(true);
   });
 });

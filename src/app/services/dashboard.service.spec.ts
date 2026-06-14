@@ -1,12 +1,21 @@
 import { TestBed } from '@angular/core/testing';
 import { DashboardService } from './dashboard.service';
-import { mockProdutos, mockStats } from '../models/mock-data';
+import { SupabaseService } from './supabase-service';
+
+class MockSupabaseService {
+  getClient() { return {} as any; }
+}
 
 describe('DashboardService', () => {
   let service: DashboardService;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    TestBed.configureTestingModule({
+      providers: [
+        DashboardService,
+        { provide: SupabaseService, useClass: MockSupabaseService },
+      ],
+    });
     service = TestBed.inject(DashboardService);
   });
 
@@ -14,35 +23,28 @@ describe('DashboardService', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should return products', (done) => {
+  it('should return products observable emitting an array', (done) => {
     service.getProducts().subscribe((products) => {
-      expect(products).toEqual(mockProdutos);
+      expect(Array.isArray(products)).toBe(true);
       done();
     });
   });
 
-  it('should return stats', (done) => {
+  it('should return stats observable emitting an object with numeric fields', (done) => {
     service.getStats().subscribe((stats) => {
-      expect(stats).toEqual(mockStats);
+      expect(stats).toBeDefined();
+      expect(typeof stats.totalProducts).toBe('number');
+      expect(typeof stats.lowStockCount).toBe('number');
+      expect(typeof stats.outOfStockCount).toBe('number');
+      expect(typeof stats.totalValue).toBe('number');
       done();
     });
   });
 
-  it('should search products by term', (done) => {
-    service.searchProducts('Notebook').subscribe((products) => {
-      expect(products.length).toBe(1);
-      expect(products[0].produto).toContain('Notebook');
+  it('should expose loading$ observable', (done) => {
+    service.loading$.subscribe((loading) => {
+      expect(typeof loading).toBe('boolean');
       done();
     });
-  });
-
-  it('should sort products ascending', () => {
-    const sorted = service.sortProducts(mockProdutos, 'produto', 'asc');
-    expect(sorted[0].produto).toBe('Monitor LG 27"');
-  });
-
-  it('should sort products descending', () => {
-    const sorted = service.sortProducts(mockProdutos, 'quantidade', 'desc');
-    expect(sorted[0].quantidade).toBe(45);
   });
 });
