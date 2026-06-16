@@ -139,7 +139,7 @@ export class DashboardService {
 
     const { error } = await this.supabaseService.getClient()
       .from('produtos')
-      .upsert(novos, { onConflict: 'sku' });
+      .upsert(novos, { onConflict: 'sku,usuario_id' });
 
     if (error) throw error;
     await this.loadProducts(this.currentPageSubject.value);
