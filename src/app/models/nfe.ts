@@ -1,5 +1,6 @@
 export interface NfeProduto {
   cProd: string;
+  cEAN?: string;
   xProd: string;
   ncm: string;
   quantidade: number;

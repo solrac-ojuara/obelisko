@@ -13,18 +13,34 @@
       </p>
     </div>
 
-    <button
-      (click)="onAddPurchase()"
-      style="display:inline-flex; align-items:center; gap:8px; font-size:0.875rem; font-weight:600; padding:10px 20px; border-radius:10px; border:none; background:linear-gradient(135deg,#FFD700,#F5C400); color:#001F3F; cursor:pointer; box-shadow:0 2px 8px rgba(245,196,0,0.35); transition:all 0.15s; white-space:nowrap"
-      onmouseover="this.style.boxShadow='0 4px 14px rgba(245,196,0,0.45)'; this.style.transform='translateY(-1px)'"
-      onmouseout="this.style.boxShadow='0 2px 8px rgba(245,196,0,0.35)'; this.style.transform='translateY(0)'"
-    >
-      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <line x1="12" y1="5" x2="12" y2="19"/>
-        <line x1="5" y1="12" x2="19" y2="12"/>
-      </svg>
-      Adicionar Compra
-    </button>
+    <div style="display:flex; gap:10px; flex-wrap:wrap">
+      <button
+        (click)="onRealizarVenda()"
+        style="display:inline-flex; align-items:center; gap:8px; font-size:0.875rem; font-weight:600; padding:10px 20px; border-radius:10px; border:2px solid #001F3F; background:transparent; color:#001F3F; cursor:pointer; box-shadow:0 2px 8px rgba(0,31,63,0.10); transition:all 0.15s; white-space:nowrap"
+        onmouseover="this.style.background='#001F3F'; this.style.color='#FFD700'; this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.background='transparent'; this.style.color='#001F3F'; this.style.transform='translateY(0)'"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/>
+          <line x1="3" y1="6" x2="21" y2="6"/>
+          <path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        Realizar Venda
+      </button>
+
+      <button
+        (click)="onAddPurchase()"
+        style="display:inline-flex; align-items:center; gap:8px; font-size:0.875rem; font-weight:600; padding:10px 20px; border-radius:10px; border:none; background:linear-gradient(135deg,#FFD700,#F5C400); color:#001F3F; cursor:pointer; box-shadow:0 2px 8px rgba(245,196,0,0.35); transition:all 0.15s; white-space:nowrap"
+        onmouseover="this.style.boxShadow='0 4px 14px rgba(245,196,0,0.45)'; this.style.transform='translateY(-1px)'"
+        onmouseout="this.style.boxShadow='0 2px 8px rgba(245,196,0,0.35)'; this.style.transform='translateY(0)'"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Adicionar Compra
+      </button>
+    </div>
 
   </div>
   <div style="margin-top:1.25rem; border-top:1px solid #e5e7eb"></div>

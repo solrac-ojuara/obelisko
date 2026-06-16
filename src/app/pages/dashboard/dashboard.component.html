@@ -2,7 +2,7 @@
   <app-navigation></app-navigation>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-    <app-dashboard-header (addPurchase)="onAddPurchase()"></app-dashboard-header>
+    <app-dashboard-header (addPurchase)="onAddPurchase()" (realizarVenda)="onRealizarVenda()"></app-dashboard-header>
 
     <app-stats-cards [data]="stats" [isLoading]="isLoading"></app-stats-cards>
 

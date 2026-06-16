@@ -5,6 +5,7 @@ export interface Produto {
   id: string;
   usuario_id?: string;
   sku: string;
+  gtin?: string;
   produto: string;
   categoria: string;
   quantidade: number;

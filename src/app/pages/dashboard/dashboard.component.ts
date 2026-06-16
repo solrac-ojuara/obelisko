@@ -1,12 +1,14 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { Router } from '@angular/router';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { NavigationComponent } from '../../components/dashboard/navigation/navigation.component';
 import { AddPurchaseModalComponent } from '../../components/dashboard/add-purchase-modal/add-purchase-modal.component';
 import { DashboardHeaderComponent } from '../../components/dashboard/dashboard-header/dashboard-header.component';
 import { StatsCardsComponent } from '../../components/dashboard/stats-cards/stats-cards.component';
 import { SearchBarComponent } from '../../components/dashboard/search-bar/search-bar.component';
 import { ProductTableComponent } from '../../components/dashboard/product-table/product-table.component';
+import { SalesModalComponent } from '../../components/dashboard/sales-modal/sales-modal.component';
 import { DashboardService } from '../../services/dashboard.service';
 import { AuthService } from '../../services/auth.service';
 import { Produto, StatsData, AppUser } from '../../models/produto';
@@ -17,6 +19,7 @@ import { NfeProduto } from '../../models/nfe';
   standalone: true,
   imports: [
     CommonModule,
+    MatDialogModule,
     NavigationComponent,
     DashboardHeaderComponent,
     StatsCardsComponent,
@@ -50,7 +53,8 @@ export class DashboardComponent implements OnInit {
     @Inject(PLATFORM_ID) private platformId: Object,
     private dashboardService: DashboardService,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private dialog: MatDialog
   ) {}
 
   ngOnInit(): void {
@@ -122,5 +126,14 @@ export class DashboardComponent implements OnInit {
 
   onCloseModal(): void {
     this.isModalOpen = false;
+  }
+
+  onRealizarVenda(): void {
+    this.dialog.open(SalesModalComponent, {
+      width: '620px',
+      maxWidth: '95vw',
+      disableClose: false,
+      panelClass: 'sales-dialog-panel',
+    });
   }
 }

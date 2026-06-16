@@ -1,0 +1,120 @@
+<div class="sales-dialog">
+
+  <h2 mat-dialog-title class="dialog-title">
+    <span class="title-icon">🛒</span>
+    Realizar Venda
+  </h2>
+
+  <mat-dialog-content class="dialog-content">
+
+    <!-- Barcode input -->
+    <div class="barcode-row">
+      <mat-form-field appearance="outline" class="barcode-field">
+        <mat-label>Código de barras (GTIN / EAN)</mat-label>
+        <input
+          matInput
+          #barcodeInput
+          [(ngModel)]="barcodeValue"
+          (keyup.enter)="onBarcodeEnter()"
+          placeholder="Aguardando leitura…"
+          autocomplete="off"
+          [disabled]="isSearching"
+        />
+        <mat-icon matSuffix>qr_code_scanner</mat-icon>
+        <mat-hint>Escaneie ou digite o código e pressione Enter</mat-hint>
+      </mat-form-field>
+
+      <button
+        mat-icon-button
+        color="primary"
+        (click)="onBarcodeEnter()"
+        [disabled]="isSearching || !barcodeValue.trim()"
+        matTooltip="Buscar produto"
+        class="search-btn"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+    </div>
+
+    <!-- Searching -->
+    <div *ngIf="isSearching" class="status-row searching">
+      <mat-spinner diameter="18"></mat-spinner>
+      <span>Buscando produto…</span>
+    </div>
+
+    <!-- Error -->
+    <div *ngIf="lastError && !isSearching" class="status-row error">
+      <mat-icon>error_outline</mat-icon>
+      <span>{{ lastError }}</span>
+    </div>
+
+    <!-- Divider -->
+    <mat-divider *ngIf="cart.length" class="section-divider"></mat-divider>
+
+    <!-- Cart -->
+    <div *ngIf="cart.length" class="cart-section">
+      <div class="cart-header">
+        <span class="cart-title">Itens da venda</span>
+        <span class="cart-badge">{{ totalItems }} item(s)</span>
+      </div>
+
+      <div class="cart-list">
+        <div *ngFor="let item of cart" class="cart-item">
+          <div class="item-info">
+            <span class="item-name">{{ item.produto.produto }}</span>
+            <span class="item-meta">SKU: {{ item.produto.sku }} &nbsp;·&nbsp; R$&nbsp;{{ getPreco(item.produto) | number:'1.2-2' }}/un</span>
+          </div>
+
+          <div class="item-controls">
+            <button mat-icon-button (click)="decreaseQty(item)" class="ctrl-btn">
+              <mat-icon>remove</mat-icon>
+            </button>
+            <span class="qty">{{ item.quantidade }}</span>
+            <button mat-icon-button (click)="increaseQty(item)" class="ctrl-btn">
+              <mat-icon>add</mat-icon>
+            </button>
+            <button mat-icon-button color="warn" (click)="removeItem(item)" class="ctrl-btn remove-btn" matTooltip="Remover">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </div>
+
+          <span class="item-subtotal">
+            R$&nbsp;{{ (getPreco(item.produto) * item.quantidade) | number:'1.2-2' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Total -->
+      <div class="total-row">
+        <span class="total-label">Total</span>
+        <span class="total-value">R$&nbsp;{{ total | number:'1.2-2' }}</span>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div *ngIf="!cart.length && !isSearching" class="empty-state">
+      <mat-icon class="empty-icon">shopping_cart</mat-icon>
+      <p class="empty-title">Nenhum item adicionado</p>
+      <p class="empty-hint">Escaneie o código de barras dos produtos para iniciar a venda</p>
+    </div>
+
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button (click)="cancelar()" [disabled]="isConfirming">
+      Cancelar
+    </button>
+
+    <button
+      mat-flat-button
+      (click)="confirmarVenda()"
+      [disabled]="!cart.length || isConfirming"
+      class="confirm-btn"
+    >
+      <mat-spinner *ngIf="isConfirming" diameter="18" class="btn-spinner"></mat-spinner>
+      <mat-icon *ngIf="!isConfirming">check_circle</mat-icon>
+      {{ isConfirming ? 'Confirmando…' : 'Confirmar Venda' }}
+    </button>
+  </mat-dialog-actions>
+
+</div>

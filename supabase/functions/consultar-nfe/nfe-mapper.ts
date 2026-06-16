@@ -6,6 +6,7 @@ export function mapFocusResponse(data: FocusNfeResponse): NfeConsultaResponse {
 
   const produtos: NfeProduto[] = itens.map((item) => ({
     cProd: item.codigo_produto ?? "",
+    cEAN: (item.codigo_ean_comercial && item.codigo_ean_comercial !== "SEM GTIN" && item.codigo_ean_comercial !== "0") ? item.codigo_ean_comercial : undefined,
     xProd: item.descricao ?? "",
     ncm: item.codigo_ncm ?? "",
     quantidade: parseFloat(item.quantidade_comercial) || 0,

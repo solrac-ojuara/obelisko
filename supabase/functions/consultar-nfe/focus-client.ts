@@ -5,6 +5,7 @@ export interface FocusNfeItem {
   quantidade_comercial: string;
   valor_unitario_comercial: string;
   valor_bruto: string;
+  codigo_ean_comercial?: string;
 }
 
 export interface FocusNfeResponse {

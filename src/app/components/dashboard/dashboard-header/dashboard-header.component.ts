@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 })
 export class DashboardHeaderComponent {
   @Output() addPurchase = new EventEmitter<void>();
+  @Output() realizarVenda = new EventEmitter<void>();
 
   readonly today = new Date();
 
@@ -22,5 +23,9 @@ export class DashboardHeaderComponent {
 
   onAddPurchase(): void {
     this.addPurchase.emit();
+  }
+
+  onRealizarVenda(): void {
+    this.realizarVenda.emit();
   }
 }

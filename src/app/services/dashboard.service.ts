@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { Produto, StatsData } from '../models/produto';
 import { NfeProduto } from '../models/nfe';
 import { SupabaseService } from './supabase-service';
+import { environment } from '../../environments/environments';
 
 @Injectable({
   providedIn: 'root',
@@ -123,6 +124,74 @@ export class DashboardService {
     await this.loadProducts(this.currentPageSubject.value, this.currentSort, this.currentSortOrder, this.currentSearch);
   }
 
+  async searchProductBySku(barcode: string): Promise<Produto | null> {
+    const { data: { user } } = await this.supabaseService.getClient().auth.getUser();
+    if (!user) return null;
+    const client = this.supabaseService.getClient();
+    const { data: bySku } = await client
+      .from('produtos').select('*')
+      .eq('sku', barcode).eq('usuario_id', user.id).maybeSingle();
+    if (bySku) return bySku as Produto;
+    const { data: byGtin, error } = await client
+      .from('produtos').select('*')
+      .eq('gtin', barcode).eq('usuario_id', user.id).maybeSingle();
+    if (error) throw error;
+    return byGtin as Produto | null;
+  }
+
+  async searchProductByName(name: string): Promise<Produto | null> {
+    const { data: { user } } = await this.supabaseService.getClient().auth.getUser();
+    if (!user) return null;
+    const { data, error } = await this.supabaseService.getClient()
+      .from('produtos')
+      .select('*')
+      .eq('usuario_id', user.id)
+      .ilike('produto', `%${name}%`)
+      .limit(1)
+      .maybeSingle();
+    if (error) throw error;
+    return data as Produto | null;
+  }
+
+
+  async consultarGtin(gtin: string): Promise<string | null> {
+    const session = await this.supabaseService.getClient().auth.getSession();
+    const token = session.data.session?.access_token;
+    try {
+      const response = await fetch(
+        `${environment.supabaseUrl}/functions/v1/consultar-gtin`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ gtin }),
+        }
+      );
+      const data = await response.json();
+      return data.found ? (data.xProd as string) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  async realizarVenda(items: { produtoId: string; quantidade: number }[]): Promise<void> {
+    const client = this.supabaseService.getClient();
+    for (const item of items) {
+      const { data: produto } = await client
+        .from('produtos')
+        .select('quantidade')
+        .eq('id', item.produtoId)
+        .single();
+      if (!produto) continue;
+      const novaQtd = Math.max(0, (produto as any).quantidade - item.quantidade);
+      const novoStatus = novaQtd > 5 ? 'Em estoque' : novaQtd > 0 ? 'Baixo estoque' : 'Fora de estoque';
+      await client
+        .from('produtos')
+        .update({ quantidade: novaQtd, status: novoStatus, atualizado_em: new Date().toISOString() })
+        .eq('id', item.produtoId);
+    }
+    await this.loadProducts(this.currentPageSubject.value, this.currentSort, this.currentSortOrder, this.currentSearch);
+  }
+
   async addFromNfe(nfeProdutos: NfeProduto[]): Promise<void> {
     const { data: { user } } = await this.supabaseService.getClient().auth.getUser();
     if (!user) throw new Error('Usuário não autenticado');
@@ -130,6 +199,7 @@ export class DashboardService {
     const novos = nfeProdutos.map((p) => ({
       usuario_id: user.id,
       sku: p.cProd,
+      gtin: (p.cEAN && p.cEAN !== 'SEM GTIN' && p.cEAN !== '0') ? p.cEAN : undefined,
       produto: p.xProd,
       categoria: 'Importado NF-e',
       quantidade: p.quantidade,
