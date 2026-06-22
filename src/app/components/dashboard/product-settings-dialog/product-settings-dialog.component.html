@@ -18,6 +18,28 @@
         Valor base NF-e: R$ {{ product.valor.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) }}
       </mat-hint>
     </mat-form-field>
+
+    <mat-divider></mat-divider>
+    <p class="text-xs text-gray-400 -mb-2">Dados fiscais (para emissão de NFC-e)</p>
+
+    <mat-form-field appearance="outline" class="w-full">
+      <mat-label>NCM (8 dígitos)</mat-label>
+      <input matInput [(ngModel)]="editNcm" placeholder="Ex: 39259090" maxlength="8" />
+      <mat-hint>Nomenclatura Comum do Mercosul</mat-hint>
+    </mat-form-field>
+
+    <div class="flex gap-3">
+      <mat-form-field appearance="outline" class="flex-1">
+        <mat-label>CFOP</mat-label>
+        <input matInput [(ngModel)]="editCfop" placeholder="5102" maxlength="4" />
+        <mat-hint>5102 = venda interna</mat-hint>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" style="width:110px">
+        <mat-label>Unidade</mat-label>
+        <input matInput [(ngModel)]="editUnidade" placeholder="UN" maxlength="6" />
+      </mat-form-field>
+    </div>
   </div>
 </mat-dialog-content>
 

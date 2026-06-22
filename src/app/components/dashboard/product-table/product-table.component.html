@@ -39,11 +39,8 @@
               >
                 Valor Unitário {{ sortBy === 'valor' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
               </th>
-              <th
-                class="px-6 py-4 text-left text-sm font-semibold cursor-pointer hover:opacity-80"
-                (click)="onSort('status')"
-              >
-                Status {{ sortBy === 'status' ? (sortOrder === 'asc' ? '↑' : '↓') : '' }}
+              <th class="px-6 py-4 text-left text-sm font-semibold">
+                Código
               </th>
               <th class="px-4 py-4 text-right text-sm font-semibold">Ações</th>
             </tr>
@@ -62,9 +59,38 @@
                 </span>
               </td>
               <td class="px-6 py-4">
-                <span [ngClass]="getStatusColor(product.status)" class="px-3 py-1 rounded-full text-xs font-semibold">
-                  {{ product.status }}
-                </span>
+                <ng-container *ngIf="product.gtin; else noGtin">
+                  <div style="position:relative; display:inline-flex; align-items:center; background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:4px 28px 4px 10px; min-width:90px">
+                    <span style="font-size:0.78rem; font-family:monospace; color:#166534; font-weight:600; letter-spacing:0.02em">{{ product.gtin }}</span>
+                    <button
+                      (click)="openGtinDialog(product)"
+                      title="Editar código"
+                      style="position:absolute; top:2px; right:3px; background:none; border:none; cursor:pointer; padding:0; line-height:1; color:#4ade80"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                      </svg>
+                    </button>
+                  </div>
+                </ng-container>
+                <ng-template #noGtin>
+                  <button
+                    (click)="openGtinDialog(product)"
+                    style="display:inline-flex; align-items:center; gap:5px; font-size:0.75rem; font-weight:600; padding:5px 10px; border-radius:8px; border:1.5px dashed #d1d5db; background:transparent; color:#6b7280; cursor:pointer; transition:all 0.15s; white-space:nowrap"
+                    onmouseover="this.style.borderColor='#F5C400'; this.style.color='#92400e'; this.style.background='#fffde7'"
+                    onmouseout="this.style.borderColor='#d1d5db'; this.style.color='#6b7280'; this.style.background='transparent'"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="16" rx="2"/>
+                      <line x1="7" y1="8" x2="7" y2="16"/>
+                      <line x1="10" y1="8" x2="10" y2="16"/>
+                      <line x1="13" y1="8" x2="13" y2="16"/>
+                      <line x1="17" y1="8" x2="17" y2="16"/>
+                    </svg>
+                    Scanear Código
+                  </button>
+                </ng-template>
               </td>
               <td class="px-4 py-4">
                 <div class="flex items-center justify-end gap-1">

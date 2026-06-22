@@ -6,6 +6,7 @@ import { ProductSettingsButtonComponent } from '../product-settings-button/produ
 import { ProductStockRemoveButtonComponent } from '../product-stock-remove-button/product-stock-remove-button.component';
 import { ProductSettingsDialogComponent } from '../product-settings-dialog/product-settings-dialog.component';
 import { ProductStockRemoveDialogComponent } from '../product-stock-remove-dialog/product-stock-remove-dialog.component';
+import { ProductGtinDialogComponent } from '../product-gtin-dialog/product-gtin-dialog.component';
 
 @Component({
   selector: 'app-product-table',
@@ -39,6 +40,13 @@ export class ProductTableComponent {
       data: product,
       width: '360px',
       panelClass: 'rounded-xl',
+    });
+  }
+
+  openGtinDialog(product: Produto): void {
+    this.dialog.open(ProductGtinDialogComponent, {
+      data: product,
+      width: '400px',
     });
   }
 

@@ -6,6 +6,9 @@ export interface Produto {
   usuario_id?: string;
   sku: string;
   gtin?: string;
+  ncm?: string;
+  cfop?: string;
+  unidade?: string;
   produto: string;
   categoria: string;
   quantidade: number;

@@ -1,120 +1,181 @@
 <div class="sales-dialog">
 
-  <h2 mat-dialog-title class="dialog-title">
-    <span class="title-icon">🛒</span>
-    Realizar Venda
-  </h2>
+  <!-- ═══════════════ ETAPA 1: CARRINHO ═══════════════ -->
+  <ng-container *ngIf="stage === 'cart'">
+    <h2 mat-dialog-title class="dialog-title">
+      <span class="title-icon">🛒</span>
+      Realizar Venda
+    </h2>
 
-  <mat-dialog-content class="dialog-content">
-
-    <!-- Barcode input -->
-    <div class="barcode-row">
-      <mat-form-field appearance="outline" class="barcode-field">
-        <mat-label>Código de barras (GTIN / EAN)</mat-label>
-        <input
-          matInput
-          #barcodeInput
-          [(ngModel)]="barcodeValue"
-          (keyup.enter)="onBarcodeEnter()"
-          placeholder="Aguardando leitura…"
-          autocomplete="off"
-          [disabled]="isSearching"
-        />
-        <mat-icon matSuffix>qr_code_scanner</mat-icon>
-        <mat-hint>Escaneie ou digite o código e pressione Enter</mat-hint>
-      </mat-form-field>
-
-      <button
-        mat-icon-button
-        color="primary"
-        (click)="onBarcodeEnter()"
-        [disabled]="isSearching || !barcodeValue.trim()"
-        matTooltip="Buscar produto"
-        class="search-btn"
-      >
-        <mat-icon>search</mat-icon>
-      </button>
-    </div>
-
-    <!-- Searching -->
-    <div *ngIf="isSearching" class="status-row searching">
-      <mat-spinner diameter="18"></mat-spinner>
-      <span>Buscando produto…</span>
-    </div>
-
-    <!-- Error -->
-    <div *ngIf="lastError && !isSearching" class="status-row error">
-      <mat-icon>error_outline</mat-icon>
-      <span>{{ lastError }}</span>
-    </div>
-
-    <!-- Divider -->
-    <mat-divider *ngIf="cart.length" class="section-divider"></mat-divider>
-
-    <!-- Cart -->
-    <div *ngIf="cart.length" class="cart-section">
-      <div class="cart-header">
-        <span class="cart-title">Itens da venda</span>
-        <span class="cart-badge">{{ totalItems }} item(s)</span>
+    <mat-dialog-content class="dialog-content">
+      <div class="barcode-row">
+        <mat-form-field appearance="outline" class="barcode-field">
+          <mat-label>Código de barras (GTIN / EAN)</mat-label>
+          <input matInput #barcodeInput [(ngModel)]="barcodeValue"
+            (keyup.enter)="onBarcodeEnter()" placeholder="Aguardando leitura…"
+            autocomplete="off" [disabled]="isSearching" />
+          <mat-icon matSuffix>qr_code_scanner</mat-icon>
+          <mat-hint>Escaneie ou digite o código e pressione Enter</mat-hint>
+        </mat-form-field>
+        <button mat-icon-button color="primary" (click)="onBarcodeEnter()"
+          [disabled]="isSearching || !barcodeValue.trim()" matTooltip="Buscar produto" class="search-btn">
+          <mat-icon>search</mat-icon>
+        </button>
       </div>
 
-      <div class="cart-list">
-        <div *ngFor="let item of cart" class="cart-item">
-          <div class="item-info">
-            <span class="item-name">{{ item.produto.produto }}</span>
-            <span class="item-meta">SKU: {{ item.produto.sku }} &nbsp;·&nbsp; R$&nbsp;{{ getPreco(item.produto) | number:'1.2-2' }}/un</span>
-          </div>
+      <div *ngIf="isSearching" class="status-row searching">
+        <mat-spinner diameter="18"></mat-spinner>
+        <span>Buscando produto…</span>
+      </div>
+      <div *ngIf="lastError && !isSearching" class="status-row error">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ lastError }}</span>
+      </div>
 
-          <div class="item-controls">
-            <button mat-icon-button (click)="decreaseQty(item)" class="ctrl-btn">
-              <mat-icon>remove</mat-icon>
-            </button>
-            <span class="qty">{{ item.quantidade }}</span>
-            <button mat-icon-button (click)="increaseQty(item)" class="ctrl-btn">
-              <mat-icon>add</mat-icon>
-            </button>
-            <button mat-icon-button color="warn" (click)="removeItem(item)" class="ctrl-btn remove-btn" matTooltip="Remover">
-              <mat-icon>delete_outline</mat-icon>
-            </button>
-          </div>
+      <mat-divider *ngIf="cart.length" class="section-divider"></mat-divider>
 
-          <span class="item-subtotal">
-            R$&nbsp;{{ (getPreco(item.produto) * item.quantidade) | number:'1.2-2' }}
-          </span>
+      <div *ngIf="cart.length" class="cart-section">
+        <div class="cart-header">
+          <span class="cart-title">Itens da venda</span>
+          <span class="cart-badge">{{ totalItems }} item(s)</span>
+        </div>
+        <div class="cart-list">
+          <div *ngFor="let item of cart" class="cart-item">
+            <div class="item-info">
+              <span class="item-name">{{ item.produto.produto }}</span>
+              <span class="item-meta">SKU: {{ item.produto.sku }} &nbsp;·&nbsp; R$&nbsp;{{ getPreco(item.produto) | number:'1.2-2' }}/un</span>
+            </div>
+            <div class="item-controls">
+              <button mat-icon-button (click)="decreaseQty(item)" class="ctrl-btn"><mat-icon>remove</mat-icon></button>
+              <span class="qty">{{ item.quantidade }}</span>
+              <button mat-icon-button (click)="increaseQty(item)" class="ctrl-btn"><mat-icon>add</mat-icon></button>
+              <button mat-icon-button color="warn" (click)="removeItem(item)" class="ctrl-btn remove-btn" matTooltip="Remover">
+                <mat-icon>delete_outline</mat-icon>
+              </button>
+            </div>
+            <span class="item-subtotal">R$&nbsp;{{ (getPreco(item.produto) * item.quantidade) | number:'1.2-2' }}</span>
+          </div>
+        </div>
+        <div class="total-row">
+          <span class="total-label">Total</span>
+          <span class="total-value">R$&nbsp;{{ total | number:'1.2-2' }}</span>
         </div>
       </div>
 
-      <!-- Total -->
-      <div class="total-row">
-        <span class="total-label">Total</span>
-        <span class="total-value">R$&nbsp;{{ total | number:'1.2-2' }}</span>
+      <div *ngIf="!cart.length && !isSearching" class="empty-state">
+        <mat-icon class="empty-icon">shopping_cart</mat-icon>
+        <p class="empty-title">Nenhum item adicionado</p>
+        <p class="empty-hint">Escaneie o código de barras dos produtos para iniciar a venda</p>
       </div>
-    </div>
+    </mat-dialog-content>
 
-    <!-- Empty state -->
-    <div *ngIf="!cart.length && !isSearching" class="empty-state">
-      <mat-icon class="empty-icon">shopping_cart</mat-icon>
-      <p class="empty-title">Nenhum item adicionado</p>
-      <p class="empty-hint">Escaneie o código de barras dos produtos para iniciar a venda</p>
-    </div>
+    <mat-dialog-actions align="end" class="dialog-actions">
+      <button mat-button (click)="cancelar()">Cancelar</button>
+      <button mat-flat-button (click)="avancarParaPagamento()" [disabled]="!cart.length" class="confirm-btn">
+        <mat-icon>arrow_forward</mat-icon>
+        Avançar para Pagamento
+      </button>
+    </mat-dialog-actions>
+  </ng-container>
 
-  </mat-dialog-content>
+  <!-- ═══════════════ ETAPA 2: PAGAMENTO ═══════════════ -->
+  <ng-container *ngIf="stage === 'payment'">
+    <h2 mat-dialog-title class="dialog-title">
+      <span class="title-icon">💳</span>
+      Pagamento
+    </h2>
 
-  <mat-dialog-actions align="end" class="dialog-actions">
-    <button mat-button (click)="cancelar()" [disabled]="isConfirming">
-      Cancelar
-    </button>
+    <mat-dialog-content class="dialog-content">
+      <p class="payment-total-label">Total da venda</p>
+      <p class="payment-total-value">R$&nbsp;{{ total | number:'1.2-2' }}</p>
 
-    <button
-      mat-flat-button
-      (click)="confirmarVenda()"
-      [disabled]="!cart.length || isConfirming"
-      class="confirm-btn"
-    >
-      <mat-spinner *ngIf="isConfirming" diameter="18" class="btn-spinner"></mat-spinner>
-      <mat-icon *ngIf="!isConfirming">check_circle</mat-icon>
-      {{ isConfirming ? 'Confirmando…' : 'Confirmar Venda' }}
-    </button>
-  </mat-dialog-actions>
+      <mat-divider class="section-divider"></mat-divider>
+
+      <p class="payment-section-title">Forma de pagamento</p>
+      <div class="payment-methods">
+        <button *ngFor="let fp of formasPagamento"
+          [class.active]="formaPagamento === fp.value"
+          (click)="formaPagamento = fp.value"
+          class="payment-option">
+          <mat-icon>{{ fp.icon }}</mat-icon>
+          <span>{{ fp.label }}</span>
+        </button>
+      </div>
+
+      <mat-divider class="section-divider"></mat-divider>
+
+      <mat-form-field appearance="outline" style="width:100%">
+        <mat-label>CPF do comprador (opcional)</mat-label>
+        <input matInput [(ngModel)]="cpfComprador" placeholder="000.000.000-00" maxlength="14" />
+        <mat-hint>Deixe em branco para venda sem identificação</mat-hint>
+      </mat-form-field>
+
+      <!-- Aviso de NCM ausente -->
+      <div *ngIf="itensSemNcm.length" class="status-row warning" style="margin-top:12px">
+        <mat-icon>warning_amber</mat-icon>
+        <span>
+          NCM ausente em: <strong>{{ itensSemNcm[0].produto.produto }}{{ itensSemNcm.length > 1 ? ' e mais ' + (itensSemNcm.length - 1) : '' }}</strong>.
+          A NFC-e não poderá ser emitida. Use "Confirmar sem NFC-e".
+        </span>
+      </div>
+
+      <div *ngIf="processError" class="status-row error" style="margin-top:8px">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ processError }}</span>
+      </div>
+    </mat-dialog-content>
+
+    <mat-dialog-actions class="dialog-actions payment-actions">
+      <button mat-button (click)="voltarParaCarrinho()" [disabled]="isProcessing">
+        <mat-icon>arrow_back</mat-icon> Voltar
+      </button>
+
+      <button mat-stroked-button (click)="confirmarSemNfce()" [disabled]="isProcessing" class="no-nfce-btn">
+        <mat-spinner *ngIf="isProcessing" diameter="16" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!isProcessing">check</mat-icon>
+        Confirmar sem NFC-e
+      </button>
+
+      <button mat-flat-button (click)="confirmarComNfce()"
+        [disabled]="isProcessing || itensSemNcm.length > 0" class="confirm-btn">
+        <mat-spinner *ngIf="isProcessing" diameter="16" class="btn-spinner"></mat-spinner>
+        <mat-icon *ngIf="!isProcessing">receipt_long</mat-icon>
+        Emitir NFC-e
+      </button>
+    </mat-dialog-actions>
+  </ng-container>
+
+  <!-- ═══════════════ ETAPA 3: RESULTADO ═══════════════ -->
+  <ng-container *ngIf="stage === 'result' && nfceResult">
+    <h2 mat-dialog-title class="dialog-title">
+      <span class="title-icon">✅</span>
+      NFC-e Emitida
+    </h2>
+
+    <mat-dialog-content class="dialog-content result-content">
+      <div class="result-card">
+        <mat-icon class="result-icon-ok">check_circle</mat-icon>
+        <p class="result-title">Nota fiscal emitida com sucesso!</p>
+        <div class="result-details">
+          <span class="result-detail-item">Série <strong>{{ nfceResult.serie }}</strong></span>
+          <span class="result-detail-sep">·</span>
+          <span class="result-detail-item">Número <strong>{{ nfceResult.numero }}</strong></span>
+        </div>
+      </div>
+
+      <a *ngIf="nfceResult.danfe_url" [href]="nfceResult.danfe_url" target="_blank" rel="noopener"
+        mat-flat-button class="danfe-btn">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Ver DANFE (PDF)
+      </a>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end" class="dialog-actions">
+      <button mat-flat-button (click)="fechar()" class="confirm-btn">
+        <mat-icon>done_all</mat-icon>
+        Concluir
+      </button>
+    </mat-dialog-actions>
+  </ng-container>
 
 </div>

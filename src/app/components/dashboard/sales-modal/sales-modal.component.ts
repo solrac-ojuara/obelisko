@@ -18,6 +18,15 @@ interface SaleItem {
   quantidade: number;
 }
 
+type Stage = 'cart' | 'payment' | 'result';
+
+interface NfceResult {
+  numero: number;
+  serie: number;
+  status: string;
+  danfe_url?: string;
+}
+
 @Component({
   selector: 'app-sales-modal',
   standalone: true,
@@ -40,21 +49,39 @@ interface SaleItem {
 export class SalesModalComponent implements AfterViewInit {
   @ViewChild('barcodeInput') barcodeInput!: ElementRef<HTMLInputElement>;
 
+  stage: Stage = 'cart';
+
   barcodeValue = '';
   isSearching = false;
   lastError = '';
   cart: SaleItem[] = [];
-  isConfirming = false;
+
+  formaPagamento: 'dinheiro' | 'credito' | 'debito' | 'pix' = 'dinheiro';
+  cpfComprador = '';
+  isProcessing = false;
+  processError = '';
+
+  nfceResult: NfceResult | null = null;
+
+  readonly formasPagamento = [
+    { value: 'dinheiro', label: 'Dinheiro', icon: 'payments' },
+    { value: 'debito',   label: 'Débito',   icon: 'credit_card' },
+    { value: 'credito',  label: 'Crédito',  icon: 'credit_card' },
+    { value: 'pix',      label: 'Pix',      icon: 'pix' },
+  ] as const;
 
   get total(): number {
     return this.cart.reduce(
-      (sum, item) => sum + (item.produto.valor_atual ?? item.produto.valor) * item.quantidade,
-      0
+      (sum, item) => sum + this.getPreco(item.produto) * item.quantidade, 0
     );
   }
 
   get totalItems(): number {
     return this.cart.reduce((sum, item) => sum + item.quantidade, 0);
+  }
+
+  get itensSemNcm(): SaleItem[] {
+    return this.cart.filter(item => !item.produto.ncm || item.produto.ncm.replace(/\D/g, '').length !== 8);
   }
 
   constructor(
@@ -111,36 +138,76 @@ export class SalesModalComponent implements AfterViewInit {
     }
   }
 
-  increaseQty(item: SaleItem): void {
-    item.quantidade++;
-  }
+  increaseQty(item: SaleItem): void { item.quantidade++; }
 
   decreaseQty(item: SaleItem): void {
-    if (item.quantidade > 1) {
-      item.quantidade--;
-    } else {
-      this.removeItem(item);
-    }
+    if (item.quantidade > 1) { item.quantidade--; } else { this.removeItem(item); }
   }
 
   removeItem(item: SaleItem): void {
     this.cart = this.cart.filter((i) => i !== item);
   }
 
-  async confirmarVenda(): Promise<void> {
-    if (!this.cart.length || this.isConfirming) return;
-    this.isConfirming = true;
+  avancarParaPagamento(): void {
+    this.stage = 'payment';
+    this.processError = '';
+  }
+
+  voltarParaCarrinho(): void {
+    this.stage = 'cart';
+    setTimeout(() => this.barcodeInput?.nativeElement.focus(), 100);
+  }
+
+  async confirmarSemNfce(): Promise<void> {
+    this.isProcessing = true;
+    this.processError = '';
     try {
       await this.dashboardService.realizarVenda(
         this.cart.map((item) => ({ produtoId: item.produto.id, quantidade: item.quantidade }))
       );
-      this.snackBar.open('Venda realizada com sucesso!', 'OK', { duration: 3000 });
+      this.snackBar.open('Venda confirmada!', 'OK', { duration: 3000 });
       this.dialogRef.close(true);
     } catch {
-      this.snackBar.open('Erro ao confirmar venda.', 'Fechar', { duration: 3000 });
+      this.processError = 'Erro ao confirmar venda. Tente novamente.';
     } finally {
-      this.isConfirming = false;
+      this.isProcessing = false;
     }
+  }
+
+  async confirmarComNfce(): Promise<void> {
+    this.isProcessing = true;
+    this.processError = '';
+    try {
+      await this.dashboardService.realizarVenda(
+        this.cart.map((item) => ({ produtoId: item.produto.id, quantidade: item.quantidade }))
+      );
+
+      const result = await this.dashboardService.emitirNfce({
+        itens: this.cart.map((item) => ({
+          sku: item.produto.sku,
+          produto: item.produto.produto,
+          ncm: item.produto.ncm ?? '',
+          cfop: item.produto.cfop ?? '5102',
+          unidade: item.produto.unidade ?? 'UN',
+          quantidade: item.quantidade,
+          valorUnitario: this.getPreco(item.produto),
+          valorTotal: this.getPreco(item.produto) * item.quantidade,
+        })),
+        formaPagamento: this.formaPagamento,
+        cpfComprador: this.cpfComprador.replace(/\D/g, '') || undefined,
+      });
+
+      this.nfceResult = result;
+      this.stage = 'result';
+    } catch (e: any) {
+      this.processError = e?.message ?? 'Erro ao emitir NFC-e.';
+    } finally {
+      this.isProcessing = false;
+    }
+  }
+
+  fechar(): void {
+    this.dialogRef.close(true);
   }
 
   cancelar(): void {

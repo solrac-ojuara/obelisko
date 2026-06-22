@@ -98,7 +98,7 @@ export class DashboardService {
     return this.stats$;
   }
 
-  async updateProduct(id: string, updates: { quantidade?: number; valor_atual?: number }): Promise<void> {
+  async updateProduct(id: string, updates: { quantidade?: number; valor_atual?: number; ncm?: string; cfop?: string; unidade?: string }): Promise<void> {
     const payload: Record<string, unknown> = { ...updates, atualizado_em: new Date().toISOString() };
 
     if (updates.quantidade !== undefined) {
@@ -154,6 +154,15 @@ export class DashboardService {
   }
 
 
+  async linkGtinToProduct(productId: string, gtin: string): Promise<void> {
+    const { error } = await this.supabaseService.getClient()
+      .from('produtos')
+      .update({ gtin, atualizado_em: new Date().toISOString() })
+      .eq('id', productId);
+    if (error) throw error;
+    await this.loadProducts(this.currentPageSubject.value, this.currentSort, this.currentSortOrder, this.currentSearch);
+  }
+
   async consultarGtin(gtin: string): Promise<string | null> {
     const session = await this.supabaseService.getClient().auth.getSession();
     const token = session.data.session?.access_token;
@@ -200,6 +209,9 @@ export class DashboardService {
       usuario_id: user.id,
       sku: p.cProd,
       gtin: (p.cEAN && p.cEAN !== 'SEM GTIN' && p.cEAN !== '0') ? p.cEAN : undefined,
+      ncm: p.ncm || undefined,
+      cfop: '5102',
+      unidade: 'UN',
       produto: p.xProd,
       categoria: 'Importado NF-e',
       quantidade: p.quantidade,
@@ -213,5 +225,25 @@ export class DashboardService {
 
     if (error) throw error;
     await this.loadProducts(this.currentPageSubject.value);
+  }
+
+  async emitirNfce(payload: {
+    itens: { sku: string; produto: string; ncm: string; cfop: string; unidade: string; quantidade: number; valorUnitario: number; valorTotal: number }[];
+    formaPagamento: string;
+    cpfComprador?: string;
+  }): Promise<{ numero: number; serie: number; danfe_url?: string; status: string }> {
+    const session = await this.supabaseService.getClient().auth.getSession();
+    const token = session.data.session?.access_token;
+    const response = await fetch(
+      `${environment.supabaseUrl}/functions/v1/emitir-nfce`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify(payload),
+      }
+    );
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.error ?? 'Erro ao emitir NFC-e');
+    return data;
   }
 }
